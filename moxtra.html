@@ -1,0 +1,28 @@
+<!-- JQuery Library -->
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="https://www.moxtra.com/api/js/moxtra-latest.js" id="moxtrajs" data-client-id="r0QI6GjJbaI"></script>
+
+<script type="text/javascript">
+var options = {
+    binder_id: BINDER_ID,
+    iframe: true,
+    tagid4iframe: "container",
+    iframewidth: "1020px",
+    iframeheight: "650px",
+    start_annotate: function(event) {
+        alert("Annotate start: session id: " + event.session_id +
+        " binder id: " + event.binder_id);
+    },
+    stop_annotate: function(event) {
+        alert("Annotate stop: download URL: " + event.download_url +
+        " share URL: " + event.share_url +
+        " binder id: " + event.binder_id);
+    },
+    error: function(event) {
+        alert("Annotate error code: " + event.error_code + " error message: " + event.error_message);
+    }
+};
+
+Moxtra.annotate(options);
+
+</script>
