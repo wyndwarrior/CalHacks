@@ -4,14 +4,21 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>LeapClass</title>
   <script>
-  vidid='zx1mIYbyk3s';
+  <?php
+$abc = $_REQUEST['vid'];
+if( $abc == 'cs61a')
+  echo 'vidid="zx1mIYbyk3s";';
+else if( $abc == 'physics')
+  echo 'vidid="LDtDNHMveBQ";';
+else 
+  echo 'vidid="'.$abc.'";';
+
+  ?>
   </script>
   <script src="leap-0.6.2.min.js"></script>
   <script src="jquery-1.11.1.min.js"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <script src="klass.js"></script>
-  <script src="three.min.js"></script>
-  <script src="CSS3DRenderer.js"></script>
   <link rel="stylesheet" type="text/css" href="klass.css">
   </head>
 <body>

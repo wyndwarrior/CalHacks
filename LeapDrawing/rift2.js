@@ -1,19 +1,4 @@
-var VR_POSITION_SCALE = 25;
 
-function printVector(values) {
-    var str = "[";
-
-    str += values.x.toFixed(2) + ", ";
-    str += values.y.toFixed(2) + ", ";
-    str += values.z.toFixed(2);
-
-    if ("w" in values) {
-        str += ", " + values.w.toFixed(2);
-    }
-
-    str += "]";
-    return str;
-}
 
  //
  // WebVR Device initialization
@@ -159,24 +144,14 @@ window.addEventListener("keydown", function(ev) {
     }
 });
 
- //
- // Rendering
- //
-var renderer = new THREE.WebGLRenderer({
-    preserveDrawingBuffer: true
-});
-var scene = new THREE.Scene();
-var cssScene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-renderer.setClearColor(0x111111, 0.0);
 
-camera.position.z = 130;
+camera.position.z = 15;
 
 function resize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
 }
 resize();
 window.addEventListener("resize", resize, false);
@@ -209,61 +184,6 @@ if (vrBtn) {
     }, false);
 }
 
- //
- // Update Loop
- //
-
-var radius = 50,
-    segments = 16,
-    rings = 16;
-
-// create a new mesh with
-// sphere geometry - we will cover
-// the sphereMaterial next!
-
-var sphereMaterial =
-  new THREE.MeshLambertMaterial(
-    {
-      color: 0xCC0000
-    });
-var sphere = new THREE.Mesh(
-
-  new THREE.SphereGeometry(
-    radius,
-    segments,
-    rings),
-
-  sphereMaterial);
-
-// add the sphere to the scene
-scene.add(sphere);
-var ambient = new THREE.AmbientLight(0x444444);
-scene.add(ambient);
-
-var material = new THREE.MeshBasicMaterial({ wireframe: true });
-var geometry = new THREE.PlaneGeometry();
-var planeMesh= new THREE.Mesh( geometry, material );
-// add it to the WebGL scene
-scene.add(planeMesh);
-
-
-  var element = document.createElement('iframe')
-  element.src = 'draw.html'
-  element.style.width = '1024px';
-  element.style.height = '1024px';
-// create the object3d for this element
-var cssObject = new THREE.CSS3DObject( element );
-// we reference the same position and rotation 
-cssObject.position = planeMesh.position;
-cssObject.rotation = planeMesh.rotation;
-// add it to the css scene
-cssScene.add(cssObject);
-
-var cssRenderer = new THREE.CSS3DRenderer();
-cssRenderer.setSize( window.innerWidth, window.innerHeight );
-cssRenderer.domElement.style.position = 'absolute';
-cssRenderer.domElement.style.top = 0;
-
 function updateVRDevice() {
     if (!sensorDevice) return false;
     var vrState = sensorDevice.getState();
@@ -281,56 +201,9 @@ function updateVRDevice() {
     cameraRight.quaternion.z = vrState.orientation.z;
     cameraRight.quaternion.w = vrState.orientation.w;
 
+
     //console.log(vrState.orientation);
     
     return true;
 }
 
-
-function render(t) {
-    requestAnimationFrame(render);
-    if (!updateVRDevice()) {
-        // If we don't have a VR device just spin the model around to give us
-        // something pretty to look at.
-        //rift.rotation.y += 0.01;
-    }
-
-    cssRenderer.render(cssScene, camera);
-
-    if (vrMode) {
-        // Render left eye
-        renderer.enableScissorTest(true);
-        renderer.setScissor(0, 0, window.innerWidth / 2, window.innerHeight);
-        renderer.setViewport(0, 0, window.innerWidth / 2, window.innerHeight);
-        renderer.render(scene, cameraLeft);
-
-        // Render right eye
-        renderer.setScissor(window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
-        renderer.setViewport(window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
-        renderer.render(scene, cameraRight);
-    } else {
-        // Render mono view
-        renderer.enableScissorTest(false);
-        renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
-        renderer.render(scene, camera);
-    }
-}
-
-cssRenderer.domElement.firstChild.appendChild(element);
-
-$(document).ready(function(){
-    //document.body.appendChild(renderer.domElement);
-    document.body.appendChild(cssRenderer.domElement);
-});
-render();
-
-function formatNumber(x) {
-  x = parseFloat(x);
-  if (x > 1e9) return numberWithCommas((x / 1e9).toFixed(2)) + "B";
-  if (x > 1e6) return numberWithCommas((x / 1e6).toFixed(2)) + "M";
-  return numberWithCommas(x.toFixed(2))
-}
-
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}

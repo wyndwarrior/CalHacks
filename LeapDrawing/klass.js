@@ -53,7 +53,7 @@ function onYouTubeIframeAPIReady() {
 	players = [new YT.Player('player1', {
 		height: window.innerHeight,
 		width: window.innerWidth*scale/2,
-		videoId: 'zx1mIYbyk3s',
+		videoId: vidid,
 		events: {
 			'onReady': onPlayerReady,
 			'onStateChange': onPlayerStateChange
@@ -61,7 +61,7 @@ function onYouTubeIframeAPIReady() {
 	}),new YT.Player('player2', {
 		height: window.innerHeight,
 		width: window.innerWidth*scale/2,
-		videoId: 'zx1mIYbyk3s',
+		videoId: vidid,
 		events: {
 			'onReady': onPlayerReady,
 			'onStateChange': onPlayerStateChange
