@@ -8,7 +8,7 @@ var lastCircle = 0;
 var points;
 var lines;
 var ytplayer;
-var recording = false;
+var recording = false, drawing = false;
 
 $(document).ready(function(){
 	canvas = document.getElementById('canvas');
@@ -118,8 +118,13 @@ function drawLine(ar){
 function drawStuff() {
 	clearCanvas(canvas, context);
 	clearCanvas(canvas2, context2);
-	var val = Math.abs(Math.floor(curz*255).toString(16));
-	context.fillStyle="#"+val+val+val;
+	if( curz < 0 ){
+		context.fillStyle="#ff3300";
+	}else if( curz < 0.3){
+		context.fillStyle="#ffcc00";
+	}else{
+		context.fillStyle="#4C3D00";
+	}
 	context.fillRect(w*curx, h*(1-cury), 30, 30);
 	if( points !== undefined)
 		drawLine(points);
@@ -156,7 +161,7 @@ function frameInfo(frame){
 
 function didCircle(direction){
 	console.log(direction);
-	if( points && points.length)
+	if( drawing )
 		return;
 	if( direction ){
 		if( recording ){
@@ -167,11 +172,23 @@ function didCircle(direction){
 			points = [];
 		}
 	}else{
-		console.log(lines, lines.length);
 		if( lines && lines.length){
-			console.log("cool");
 			lines.splice(lines.length-1, 1);
 		}
+		if( !recording ){
+			startRecording();
+		}
+	}
+}
+
+function startRecording(){
+	if( !recording ){
+		setTimeout(function(){
+			recording = true;
+		}, 1000);
+		lines = [];
+		points = [];
+		pauseVideo();
 	}
 }
 
@@ -183,15 +200,17 @@ Leap.loop({enableGestures: true}, function (frame) {
 		cury = info[1][1];
 		curz = info[1][2];
 		if( recording ){
-			if( curz < 0 ) {
+			if( drawing ? curz < 0.1 : curz < 0 ) {
 				if(points === undefined)
 					points = [];
+				drawing = true;
 				points.push(w*curx);
 				points.push(h*(1-cury));
 			}else{
 				if( points !== undefined && points.length)
 					lines.push(points);
 				points = [];
+				drawing = false;
 			}
 		}
 	}else{
@@ -205,18 +224,12 @@ Leap.loop({enableGestures: true}, function (frame) {
 				if( info[2] != 2) 
 					continue;
 				var time = new Date().getTime();
-				if( time - lastCircle >= 1000){
+				if( g.progress > 2 &&  time - lastCircle >= 1000){
 					lastCircle = time;
-					console.log(g.normal[2]);
 					didCircle(g.normal[2] < 0);
 				}
 			}else if( g.type == "screenTap"){
-				if( !recording ){
-					recording = true;
-					lines = [];
-					points = [];
-					pauseVideo();
-				}
+
 			}
 		}
 	}
