@@ -9,6 +9,20 @@ var points;
 var lines;
 var ytplayer;
 var recording = false, drawing = false;
+var imgHand = null, imgPen = null;
+
+
+var img1 = new Image();
+img1.src = "hand.png";
+img1.onload = function() {
+	imgHand = img1;
+};
+
+var img2 = new Image();
+img2.src = "marker.png";
+img2.onload = function() {
+	imgPen = img2;
+};
 
 $(document).ready(function(){
 	canvas = document.getElementById('canvas');
@@ -87,7 +101,7 @@ function pauseVideo() {
 function resizeCanvas() {
     canvas2.width = canvas.width = w = window.innerWidth/2*scale;
     canvas2.height = canvas.height = h = window.innerHeight;
-    drawStuff();
+    drawStuff(true);
 }
 
 function clearCanvas(canvas, context){
@@ -123,18 +137,26 @@ function drawLine(ar){
 	context.stroke();
 }
 
-function drawStuff(drawcursor = true) {
+function drawImg(img, x, y, width, height, alpha){
+	context.globalAlpha = alpha;
+	if( img )
+		context.drawImage(img, x, y, width, height);
+	context.globalAlpha = 1;
+}
+
+function drawStuff(drawcursor) {
 	clearCanvas(canvas, context);
 	clearCanvas(canvas2, context2);
-	if( curz < 0 ){
-		context.fillStyle="#ff3300";
-	}else if( curz < 0.3){
-		context.fillStyle="#ffcc00";
-	}else{
-		context.fillStyle="#4C3D00";
+	if( drawcursor ){
+		if( curz < 0 ){
+			drawImg(imgPen, curx*w, (1-cury)*h, 55.3*(3+curz), 23.9*(3+curz), 1);
+		}else if( curz < 0.3){
+			drawImg(imgPen, curx*w, (1-cury)*h, 55.3*(3+curz), 23.9*(3+curz), 1-curz/0.3);
+			drawImg(imgHand, curx*w, (1-cury)*h, 30*(4+curz), 21.2*(4+curz), curz/0.3);
+		}else{
+			drawImg(imgHand, curx*w, (1-cury)*h, 30*(4+curz), 21.2*(4+curz), 1);
+		}
 	}
-	if( drawcursor )
-		context.fillRect(w*curx, h*(1-cury), 30, 30);
 	if( points !== undefined)
 		drawLine(points);
 	for(var i = 0; i<lines.length; i++)
@@ -247,7 +269,7 @@ Leap.loop({enableGestures: true}, function (frame) {
 	for(var i = 0; i < info[1].length; i++)
 		s += info[1][i].toFixed(2) + ", ";
 	//$("#status").html(info[0] +  s + " " + (info[1].length !=0));
-	drawStuff();
+	drawStuff(true);
 });
 
 
