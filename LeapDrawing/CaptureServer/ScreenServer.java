@@ -26,7 +26,12 @@ public class ScreenServer{
 	        out.write("\"yay\"");
 	        out.close();
 	        in.close();
-	        ScreenCapture.save(new File("/Users/Jim/Dropbox/Notes/Note"+new SimpleDateFormat("MM-dd-yy-hh:mm").format(new Date())+".jpg"));
+	        try{
+	        	Thread.sleep(100);
+	        }catch(Exception e){
+	        	e.printStackTrace();
+	        }
+	        ScreenCapture.save(new File("/Users/Jim/Dropbox/Notes/Note"+new SimpleDateFormat("MM-dd-yy-hh-mm").format(new Date())+".jpg"));
 	        clientSocket.close();
 	    }
 	}

@@ -10,6 +10,7 @@ var lines;
 var ytplayer;
 var recording = false, drawing = false;
 var imgHand = null, imgPen = null;
+var drawcursor = true;
 
 
 var img1 = new Image();
@@ -44,7 +45,7 @@ function screenshot(){
 	var head= document.getElementsByTagName('head')[0];
 	var script= document.createElement('script');
 	script.type= 'text/javascript';
-	script.src= 'http://localhost:1337';
+	script.src= 'http://localhost:1337/?'+Math.random();
 	head.appendChild(script);
 }
 
@@ -101,7 +102,7 @@ function pauseVideo() {
 function resizeCanvas() {
     canvas2.width = canvas.width = w = window.innerWidth/2*scale;
     canvas2.height = canvas.height = h = window.innerHeight;
-    drawStuff(true);
+    drawStuff();
 }
 
 function clearCanvas(canvas, context){
@@ -144,7 +145,7 @@ function drawImg(img, x, y, width, height, alpha){
 	context.globalAlpha = 1;
 }
 
-function drawStuff(drawcursor) {
+function drawStuff() {
 	clearCanvas(canvas, context);
 	clearCanvas(canvas2, context2);
 	if( drawcursor ){
@@ -196,12 +197,16 @@ function didCircle(direction){
 		return;
 	if( direction ){
 		if( recording ){
-			drawStuff(false);
+			drawcursor = false;
+			drawStuff();
 			screenshot();
 			playVideo();
 			recording = false;
-			lines = [];
-			points = [];
+			setTimeout(function(){
+				drawcursor = true;
+				lines = [];
+				points = [];
+			}, 400);
 		}
 	}else{
 		if( lines && lines.length){
@@ -269,7 +274,7 @@ Leap.loop({enableGestures: true}, function (frame) {
 	for(var i = 0; i < info[1].length; i++)
 		s += info[1][i].toFixed(2) + ", ";
 	//$("#status").html(info[0] +  s + " " + (info[1].length !=0));
-	drawStuff(true);
+	drawStuff();
 });
 
 
