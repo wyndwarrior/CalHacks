@@ -2,68 +2,89 @@
 
 <head>
     <script type="text/javascript" src="swfobject.js"></script>
-<script type="text/javascript">
+    <script type="text/javascript">
 
-function embedPlayer() {
-    var params = { allowScriptAccess: 'always', bgcolor: '#D5DDB3' };
-    var atts = { id: 'myytplayer' };
-    //CS61A Lecture number 1 -- https://www.youtube.com/v/OsMI7P1pE98
-    swfobject.embedSWF('http://www.youtube.com/v/OsMI7P1pE98?enablejsapi=1&amp;playerapiid=ytplayer', 
-            'ytapiplayer', '500', '375', '8', null, null, params, atts);
-}
-
-function onYouTubePlayerReady(playerId) {
-    console.log("onYouTubePlayerReady() executed");
-    ytplayer = document.getElementById('myytplayer');
-    setInterval(updateytplayerInfo, 250);
-    updateytplayerInfo();
-    ytplayer.addEventListener('onStateChange', 'onytplayerStateChange');
-    document.getElementById('controls').style.display = 'block';
-}
-
-function onytplayerStateChange(newState) {
-     setytplayerState(newState);
-}
-
-function showVolume() {
-    alert( ytplayer.getVolume() );
-}
-
-function updateytplayerInfo() {
-    if (ytplayer) {
-        updateTimebar();
+    function embedPlayer() {
+        var params = { allowScriptAccess: 'always', bgcolor: '#D5DDB3' };
+        var atts = { id: 'myytplayer' };
+        //CS61A Lecture number 1 -- https://www.youtube.com/v/OsMI7P1pE98
+        swfobject.embedSWF('http://www.youtube.com/v/OsMI7P1pE98?enablejsapi=1&amp;playerapiid=ytplayer', 
+                'ytapiplayer', '500', '375', '8', null, null, params, atts);
     }
-}
 
-function updateTimebar() {
-    var all = ytplayer.getDuration();
-    var part = ytplayer.getCurrentTime();
-    var percent = getPercent(all, part);
-    var timebarWidth = 450;
-//    document.getElementById('timebarIndicator').style.left = percent * (timebarWidth / 100) + "px";
-}
+    function onYouTubePlayerReady(playerId) {
+        console.log("onYouTubePlayerReady() executed");
+        ytplayer = document.getElementById('myytplayer');
+        setInterval(updateytplayerInfo, 250);
+        updateytplayerInfo();
+        ytplayer.addEventListener('onStateChange', 'onytplayerStateChange');
+        document.getElementById('controls').style.display = 'block';
+    }
 
-function getPercent(all, part) {
-   return (all > 0) ? (100 / all) * part : 0;
-}
-</script>
+    function onytplayerStateChange(newState) {
+         setytplayerState(newState);
+    }
+
+    function showVolume() {
+        alert( ytplayer.getVolume() );
+    }
+
+    function updateytplayerInfo() {
+        if (ytplayer) {
+            updateTimebar();
+        }
+    }
+
+    function updateTimebar() {
+        var all = ytplayer.getDuration();
+        var part = ytplayer.getCurrentTime();
+        var percent = getPercent(all, part);
+        var timebarWidth = 450;
+        document.getElementById('timebarIndicator').style.left = percent * (timebarWidth / 100) + "px";
+    }
+
+    function getPercent(all, part) {
+       return (all > 0) ? (100 / all) * part : 0;
+    }
+        
+    function checkKey(e) {
+        e = e || window.event;
+        switch(e.keyCode) {
+        case 80:
+                alart(YT.PlayerState.PLAYING)
+                if(ytplayer.getPlayerState() == YT.PlayerState.PLAYING) {
+//                    alert(ytplayer.getPlayerState());
+                    typlayer.pauseVideo();
+                } else if(ytplayer.getPlayerState() == YT.PlayerState.PAUSED) {
+//                    alert(ytplayer.getPlayerState());
+                    typlayer.playVideo();
+                }
+        }
+    }
+        
+    document.onkeydown = checkKey;
+    </script>
 </head>
 
 <body onload="embedPlayer()">
 
-<div class="content">
+    <div class="content">
 
-<div id="ytapiplayer">(Ooops, Flash + JavaScript needed...)</div>
+    <div id="ytapiplayer">(Ooops, Flash + JavaScript needed...)</div>
 
-<div id="controls" style="display: none">
-    <div id="buttons">
-        <a href="javascript:ytplayer.loadVideoById('xYPbUb4bfA0', 0)">Load song 1</a> |
-        <a href="javascript:ytplayer.loadVideoById('tAtcJ954TjQ', 0)">Load song 2</a> |
-        <a href="javascript:ytplayer.loadVideoById('eBGIQ7ZuuiU', 0)">Load song 3</a> |
-        <a href="javascript:ytplayer.pauseVideo()">Pause</a> |
-        <a href="javascript:ytplayer.playVideo()">Play</a> |
-        <a href="javascript:showVolume()">Show volume</a>
+    <div id="controls" style="display: none">
+        <div id="buttons">
+            <a href="javascript:ytplayer.loadVideoById('OsMI7P1pE98', 0)">John DeNero</a> |
+            <a href="javascript:ytplayer.loadVideoById('JKjNizBuH9Y', 0)">Blaze It Up</a> |
+            <a href="javascript:ytplayer.loadVideoById('2HQaBWziYvY', 0)">What's the name of the song?</a> |
+            <a href="javascript:ytplayer.pauseVideo()">Pause</a> |
+            <a href="javascript:ytplayer.playVideo()">Play</a> |
+            <a href="javascript:showVolume()">Show volume</a>
+        </div>
+
+        <div id = "timebar">
+            <img id = "timebarIndicator" src = "timebar-indicator.png" alt = '|' />
+        </div>
+
     </div>
-
-</div>
 </body>

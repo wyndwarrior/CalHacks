@@ -2,6 +2,7 @@ var x = false;
 
 var canvas;
 var context;
+var canvas2, context2;
 var h, w, curx, cury, curz;
 var lastCircle = 0;
 var points;
@@ -12,27 +13,41 @@ var recording = false;
 $(document).ready(function(){
 	canvas = document.getElementById('canvas');
 	context = canvas.getContext('2d');
+	canvas2 = document.getElementById('canvas2');
+    context2 = canvas2.getContext('2d');
+
 	lines = [];
 	window.addEventListener('resize', resizeCanvas, false);
 	resizeCanvas();
 
 });
 
-var player;
+var players = [];
+
+var scale = 0.9;
+
 function onYouTubeIframeAPIReady() {
-	player = new YT.Player('player', {
+	players = [new YT.Player('player1', {
 		height: window.innerHeight,
-		width: window.innerWidth,
+		width: window.innerWidth*scale/2,
 		videoId: 'zx1mIYbyk3s',
 		events: {
 			'onReady': onPlayerReady,
 			'onStateChange': onPlayerStateChange
 		}
-	});
+	}),new YT.Player('player2', {
+		height: window.innerHeight,
+		width: window.innerWidth*scale/2,
+		videoId: 'zx1mIYbyk3s',
+		events: {
+			'onReady': onPlayerReady,
+			'onStateChange': onPlayerStateChange
+		}
+	})];
 }
 
 function onPlayerReady(event) {
-	event.target.playVideo();
+	playVideo();
 }
 
 function onPlayerStateChange(event) {
@@ -43,24 +58,31 @@ function onPlayerStateChange(event) {
 }
 
 function playVideo(){
-	player.playVideo();
+	players[0].mute();
+	if( players[1].unMute !== undefined )
+		players[1].unMute();
+	for(var i in players)
+		if( players[i].playVideo !== undefined )
+			players[i].playVideo();
 }
 
 function stopVideo() {
-	player.stopVideo();
+	for(var i in players)
+		players[i].stopVideo();
 }
 
 function pauseVideo() {
-	player.pauseVideo();
+	for(var i in players)
+		players[i].pauseVideo();
 }
 
 function resizeCanvas() {
-    canvas.width = w = window.innerWidth;
-    canvas.height = h = window.innerHeight;
+    canvas2.width = canvas.width = w = window.innerWidth/2*scale;
+    canvas2.height = canvas.height = h = window.innerHeight;
     drawStuff();
 }
 
-function clearCanvas(){
+function clearCanvas(canvas, context){
 	context.save();
 	context.setTransform(1, 0, 0, 1, 0, 0);
 	context.clearRect(0, 0, canvas.width, canvas.height);
@@ -94,7 +116,8 @@ function drawLine(ar){
 }
 
 function drawStuff() {
-	clearCanvas();
+	clearCanvas(canvas, context);
+	clearCanvas(canvas2, context2);
 	var val = Math.abs(Math.floor(curz*255).toString(16));
 	context.fillStyle="#"+val+val+val;
 	context.fillRect(w*curx, h*(1-cury), 30, 30);
@@ -102,6 +125,7 @@ function drawStuff() {
 		drawLine(points);
 	for(var i = 0; i<lines.length; i++)
 		drawLine(lines[i]);
+	context2.drawImage(canvas, 0, 0);
 }
 
 function frameInfo(frame){
