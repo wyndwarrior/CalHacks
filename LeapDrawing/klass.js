@@ -26,6 +26,14 @@ var players = [];
 
 var scale = 0.9;
 
+function screenshot(){
+	var head= document.getElementsByTagName('head')[0];
+	var script= document.createElement('script');
+	script.type= 'text/javascript';
+	script.src= 'http://localhost:1337';
+	head.appendChild(script);
+}
+
 function onYouTubeIframeAPIReady() {
 	players = [new YT.Player('player1', {
 		height: window.innerHeight,
@@ -115,7 +123,7 @@ function drawLine(ar){
 	context.stroke();
 }
 
-function drawStuff() {
+function drawStuff(drawcursor = true) {
 	clearCanvas(canvas, context);
 	clearCanvas(canvas2, context2);
 	if( curz < 0 ){
@@ -125,7 +133,8 @@ function drawStuff() {
 	}else{
 		context.fillStyle="#4C3D00";
 	}
-	context.fillRect(w*curx, h*(1-cury), 30, 30);
+	if( drawcursor )
+		context.fillRect(w*curx, h*(1-cury), 30, 30);
 	if( points !== undefined)
 		drawLine(points);
 	for(var i = 0; i<lines.length; i++)
@@ -165,7 +174,8 @@ function didCircle(direction){
 		return;
 	if( direction ){
 		if( recording ){
-			//TODO: save recording
+			drawStuff(false);
+			screenshot();
 			playVideo();
 			recording = false;
 			lines = [];
@@ -239,4 +249,7 @@ Leap.loop({enableGestures: true}, function (frame) {
 	//$("#status").html(info[0] +  s + " " + (info[1].length !=0));
 	drawStuff();
 });
+
+
+
 
