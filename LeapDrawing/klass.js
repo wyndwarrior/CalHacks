@@ -3,8 +3,11 @@ var x = false;
 var canvas;
 var context;
 var h, w, curx, cury, curz;
+var lastCircle = 0;
 var points;
 var lines;
+var ytplayer;
+var recording = false;
 
 $(document).ready(function(){
 	canvas = document.getElementById('canvas');
@@ -12,7 +15,44 @@ $(document).ready(function(){
 	lines = [];
 	window.addEventListener('resize', resizeCanvas, false);
 	resizeCanvas();
+
 });
+
+var player;
+function onYouTubeIframeAPIReady() {
+	player = new YT.Player('player', {
+		height: window.innerHeight,
+		width: window.innerWidth,
+		videoId: 'zx1mIYbyk3s',
+		events: {
+			'onReady': onPlayerReady,
+			'onStateChange': onPlayerStateChange
+		}
+	});
+}
+
+function onPlayerReady(event) {
+	event.target.playVideo();
+}
+
+function onPlayerStateChange(event) {
+	/*if (event.data == YT.PlayerState.PLAYING && !done) {
+		setTimeout(stopVideo, 6000);
+		done = true;
+	}*/
+}
+
+function playVideo(){
+	player.playVideo();
+}
+
+function stopVideo() {
+	player.stopVideo();
+}
+
+function pauseVideo() {
+	player.pauseVideo();
+}
 
 function resizeCanvas() {
     canvas.width = w = window.innerWidth;
@@ -47,8 +87,9 @@ function drawLine(ar){
 		pt = average(ar, i-2*3, i+2*4);
 		context.lineTo(pt[0], pt[1]);
 	}
-	context.lineWidth = 10;
+	context.lineWidth = 6;
 	context.lineCap = 'round';
+	context.strokeStyle = 'red';
 	context.stroke();
 }
 
@@ -79,12 +120,35 @@ function frameInfo(frame){
 			}
 		}
 	}
-	var pointing = true;
+	var pointing = true, total = 0;
 	for(var i = 0; i<5; i++){
 		if( (fingers[i] == 0) == (i == 1))
 			pointing = false;
+		if( fingers[i] )
+			total++;
 	}
-	return [pointing, ipos];
+	return [pointing, ipos, total];
+}
+
+function didCircle(direction){
+	console.log(direction);
+	if( points && points.length)
+		return;
+	if( direction ){
+		if( recording ){
+			//TODO: save recording
+			playVideo();
+			recording = false;
+			lines = [];
+			points = [];
+		}
+	}else{
+		console.log(lines, lines.length);
+		if( lines && lines.length){
+			console.log("cool");
+			lines.splice(lines.length-1, 1);
+		}
+	}
 }
 
 
@@ -94,15 +158,17 @@ Leap.loop({enableGestures: true}, function (frame) {
 		curx = info[1][0];
 		cury = info[1][1];
 		curz = info[1][2];
-		if( curz < 0 ) {
-			if(points === undefined)
+		if( recording ){
+			if( curz < 0 ) {
+				if(points === undefined)
+					points = [];
+				points.push(w*curx);
+				points.push(h*(1-cury));
+			}else{
+				if( points !== undefined && points.length)
+					lines.push(points);
 				points = [];
-			points.push(w*curx);
-			points.push(h*(1-cury));
-		}else{
-			if( points !== undefined)
-				lines.push(points);
-			points = [];
+			}
 		}
 	}else{
 		curx = curz = cury = -1;
@@ -112,8 +178,21 @@ Leap.loop({enableGestures: true}, function (frame) {
 		for(var i = 0; i<gg.length; i++){
 			var g = gg[i];
 			if( g.type == "circle"){
-				console.log(g.id+" radius: " + g.radius.toFixed(1) + " mm, "
-                        + "progress: " + g.progress.toFixed(2) + " rotations");
+				if( info[2] != 2) 
+					continue;
+				var time = new Date().getTime();
+				if( time - lastCircle >= 1000){
+					lastCircle = time;
+					console.log(g.normal[2]);
+					didCircle(g.normal[2] < 0);
+				}
+			}else if( g.type == "screenTap"){
+				if( !recording ){
+					recording = true;
+					lines = [];
+					points = [];
+					pauseVideo();
+				}
 			}
 		}
 	}
